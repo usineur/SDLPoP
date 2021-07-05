@@ -923,7 +923,7 @@ void __pascal far draw_back_fore(int which_table,int index) {
 		mask = chtab->images[chtab->n_images / 2 + table_entry->id];
 	}
 	*/
-	draw_image(image, mask, table_entry->xh * 8 + table_entry->xl, table_entry->y, table_entry->blit);
+	draw_image_1(image, mask, table_entry->xh * 8 + table_entry->xl, table_entry->y, table_entry->blit);
 }
 
 
@@ -1012,7 +1012,7 @@ void __pascal far draw_mid(int index) {
 		add_peel(round_xpos_to_byte(xpos, 0), round_xpos_to_byte(image->w/*width*/ + xpos, 1), ypos, image->h/*height*/);
 	}
 	//printf("Midtable: drawing (chtab %d, image %d) at (x=%d, y=%d)\n",chtab_id,image_id,xpos,ypos); // debug
-	draw_image(image, mask, xpos, ypos, blit);
+	draw_image_1(image, mask, xpos, ypos, blit);
 
 	if (chtab_flip_clip[chtab_id]) {
 		reset_clip_rect();
@@ -1027,7 +1027,7 @@ void __pascal far draw_mid(int index) {
 }
 
 // seg008:167B
-void __pascal far draw_image(image_type far *image,image_type far *mask,int xpos,int ypos,int blit) {
+void __pascal far draw_image_1(image_type far *image,image_type far *mask,int xpos,int ypos,int blit) {
 	rect_type rect;
 	switch (blit) {
 		case blitters_10h_transp:

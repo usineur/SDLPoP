@@ -132,7 +132,7 @@ static int ini_process_##data_type(const char* curr_name, const char* value, con
 	if(strcasecmp(curr_name, option_name) == 0) { \
 		if (strcasecmp(value, "default") != 0) { \
 			int named_value = ini_get_named_value(value, value_names); \
-			*target = (named_value == INI_NO_VALID_NAME) ? ((data_type) strtoimax(value, NULL, 0)) : ((data_type) named_value); \
+			*target = (named_value == INI_NO_VALID_NAME) ? ((data_type) strtol(value, NULL, 0)) : ((data_type) named_value); \
 		} \
 		return 1; /* finished; don't look for more possible options that curr_name can be */ \
 	} \
@@ -476,8 +476,13 @@ void set_options_to_default() {
 
 void load_global_options() {
 	set_options_to_default();
+#ifdef __vita__
+	ini_load(locate_file("ux0:data/prince/SDLPoP.ini"), global_ini_callback); // global configuration
+	load_dos_exe_modifications("ux0:data/prince/"); // read PRINCE.EXE
+#else
 	ini_load(locate_file("SDLPoP.ini"), global_ini_callback); // global configuration
 	load_dos_exe_modifications("."); // read PRINCE.EXE in the current working directory
+#endif
 }
 
 void check_mod_param() {
@@ -732,7 +737,11 @@ void load_mod_options() {
 	if (use_custom_levelset) {
 		// find the folder containing the mod's files
 		char folder_name[POP_MAX_PATH];
+#ifdef __vita__
+		snprintf_check(folder_name, sizeof(folder_name), "ux0:data/prince/%s/%s", mods_folder, levelset_name);
+#else
 		snprintf_check(folder_name, sizeof(folder_name), "%s/%s", mods_folder, levelset_name);
+#endif
 		const char* located_folder_name = locate_file(folder_name);
 		//printf("located_folder_name = %s\n", located_folder_name);
 		bool ok = false;
@@ -746,7 +755,11 @@ void load_mod_options() {
 				load_dos_exe_modifications(located_folder_name);
 				// Try to load mod.ini
 				char mod_ini_filename[POP_MAX_PATH];
+#ifdef __vita__
+				snprintf_check(mod_ini_filename, sizeof(mod_ini_filename), "ux0:data/prince/%s/%s", located_folder_name, "mod.ini");
+#else
 				snprintf_check(mod_ini_filename, sizeof(mod_ini_filename), "%s/%s", located_folder_name, "mod.ini");
+#endif
 				if (file_exists(mod_ini_filename)) {
 					// Nearly all mods would want to use custom options, so always allow them.
 					use_custom_options = 1;

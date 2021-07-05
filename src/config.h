@@ -278,7 +278,9 @@ The authors of this program may be contacted at https://forum.princed.org
 #define USE_LIGHTING
 
 // Enable screenshot features.
+#ifndef __vita__
 #define USE_SCREENSHOT
+#endif
 
 // Automatically switch to keyboard or joystick/gamepad mode if there is input from that device.
 // Useful if SDL detected a gamepad but there is none.
@@ -313,5 +315,38 @@ The authors of this program may be contacted at https://forum.princed.org
 #define SDL_JOYSTICK_BUTTON_X 3
 #define SDL_JOYSTICK_X_AXIS 0
 #define SDL_JOYSTICK_Y_AXIS 1
+
+#if defined(__SWITCH__)
+#define BTN_A      0
+#define BTN_B      1
+#define BTN_X      2
+#define BTN_Y      3
+#define BTN_L      6
+#define BTN_R      7
+#define BTN_ZL     8
+#define BTN_ZR     9
+#define BTN_PLUS  10
+#define BTN_LEFT  12
+#define BTN_UP    13
+#define BTN_RIGHT 14
+#define BTN_DOWN  15
+#include <switch.h>
+#elif defined(__vita__)
+#define BTN_TRIANGLE 0
+#define BTN_CIRCLE   1
+#define BTN_CROSS    2
+#define BTN_SQUARE   3
+#define BTN_LTRIGGER 4
+#define BTN_RTRIGGER 5
+#define BTN_DOWN     6
+#define BTN_LEFT     7
+#define BTN_UP       8
+#define BTN_RIGHT    9
+#define BTN_SELECT  10
+#define BTN_START   11
+#include "psp2_shader.h"
+#include <kbdvita.h>
+#include <vita2d_fbo.h>
+#endif
 
 #endif

@@ -759,7 +759,11 @@ void __pascal far show_hof() {
 	// stub
 }
 
+#ifdef __vita__
+static const char* hof_file = "ux0:data/prince/PRINCE.HOF";
+#else
 static const char* hof_file = "PRINCE.HOF";
+#endif
 
 const char* get_hof_path(char* custom_path_buffer, size_t max_len) {
 	if (!use_custom_levelset) {

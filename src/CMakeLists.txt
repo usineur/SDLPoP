@@ -51,6 +51,31 @@ if (WIN32)
     link_directories(${SDL2}/${SDL2_ARCH}/lib)
 endif()
 
+if (NINTENDO_SWITCH)
+    include_directories($ENV{DEVKITPRO}/libnx/include $ENV{DEVKITPRO}/portlibs/switch/include $ENV{DEVKITPRO}/portlibs/switch/include/SDL2)
+    add_custom_target(${CMAKE_PROJECT_NAME}.nro
+        DEPENDS prince
+        COMMAND nacptool --create "${CMAKE_PROJECT_NAME}" "usineur" "1.22" ${CMAKE_PROJECT_NAME}.nacp
+        COMMAND elf2nro ${CMAKE_SOURCE_DIR}/../prince ${CMAKE_PROJECT_NAME}.nro --icon=${CMAKE_SOURCE_DIR}/../res/icon.jpg --nacp=${CMAKE_PROJECT_NAME}.nacp
+    )
+    add_custom_target(nxlink
+        DEPENDS ${CMAKE_PROJECT_NAME}.nro
+        COMMAND nxlink -a $(SWITCHIP) ${CMAKE_PROJECT_NAME}.nro -s -p ${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}.nro
+    )
+elseif (VITA)
+    include("${VITASDK}/share/vita.cmake" REQUIRED)
+    include_directories(${VITASDK}/arm-vita-eabi/include/SDL2 ${VITASDK}/arm-vita-eabi/include/vitashaders)
+    set(CMAKE_C_FLAGS "-Wl,-q -fno-exceptions -O3")
+    vita_create_self(eboot.bin ../prince UNSAFE)
+    vita_create_vpk(${CMAKE_PROJECT_NAME}.vpk "SPOP00001" eboot.bin
+        NAME ${CMAKE_PROJECT_NAME}
+        FILE ../res/icon0.png sce_sys/icon0.png
+        FILE ../res/bg.png sce_sys/livearea/contents/bg.png
+        FILE ../res/startup.png sce_sys/livearea/contents/startup.png
+        FILE ../res/template.xml sce_sys/livearea/contents/template.xml
+    )
+endif()
+
 set(SOURCE_FILES
         main.c
         common.h
@@ -71,6 +96,7 @@ set(SOURCE_FILES
         seg009.c
         seqtbl.c
         options.c
+        psp2_shader.c
         midi.c opl3.c opl3.h
         replay.c
         lighting.c
@@ -117,6 +143,10 @@ if(WIN32)
     target_link_libraries(prince mingw32 SDL2main SDL2 SDL2_image)
 elseif(APPLE)
     target_link_libraries(prince SDL2main SDL2 SDL2_image m)
+elseif(NINTENDO_SWITCH)
+    target_link_libraries(prince SDL2main SDL2 SDL2_image EGL glapi drm_nouveau jpeg png webp z nx stdc++ m)
+elseif(VITA)
+    target_link_libraries(prince SDL2_image SDL2 jpeg png webp pthread kbdvita vita2d_fbo vitashaders z m SceAppUtil_stub SceAudio_stub SceCommonDialog_stub SceCtrl_stub SceDisplay_stub SceGxm_stub SceHid_stub SceSysmodule_stub SceTouch_stub)
 else() # Linux, *BSD, etc.
     target_link_libraries(prince SDL2 SDL2_image m)
 endif()

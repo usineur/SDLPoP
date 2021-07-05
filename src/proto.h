@@ -466,7 +466,7 @@ void __pascal far draw_table(int which_table);
 void __pascal far draw_wipes(int which);
 void __pascal far draw_back_fore(int which_table,int index);
 void __pascal far draw_mid(int index);
-void __pascal far draw_image(image_type far *image,image_type far *mask,int xpos,int ypos,int blit);
+void __pascal far draw_image_1(image_type far *image,image_type far *mask,int xpos,int ypos,int blit);
 void __pascal far draw_wipe(int index);
 void __pascal far calc_gate_pos();
 void __pascal far draw_gate_back();

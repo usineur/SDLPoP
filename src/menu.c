@@ -2160,7 +2160,11 @@ dword exe_crc = 0;
 void calculate_exe_crc() {
 	if (exe_crc == 0) {
 		// Get the CRC32 fingerprint of the executable.
+#ifdef __vita__
+		FILE* exe_file = fopen("app0:eboot.bin", "rb");
+#else
 		FILE* exe_file = fopen(g_argv[0], "rb");
+#endif
 		if (exe_file != NULL) {
 			fseek(exe_file, 0, SEEK_END);
 			size_t size = ftell(exe_file);
@@ -2181,7 +2185,14 @@ void calculate_exe_crc() {
 }
 
 void save_ingame_settings() {
+#ifdef __vita__
+	const char* cfg_filename = "ux0:data/prince/SDLPoP.cfg";
+	FILE *fp = fopen(cfg_filename, "ab+");
+	fclose(fp);
+	SDL_RWops* rw = SDL_RWFromFile(locate_file(cfg_filename), "wb");
+#else
 	SDL_RWops* rw = SDL_RWFromFile(locate_file("SDLPoP.cfg"), "wb");
+#endif
 	if (rw != NULL) {
 		calculate_exe_crc();
 		SDL_RWwrite(rw, &exe_crc, sizeof(exe_crc), 1);
@@ -2198,8 +2209,13 @@ void load_ingame_settings() {
 	// We want the SDLPoP.cfg file (in-game menu settings) to override the SDLPoP.ini file,
 	// but ONLY if the .ini file wasn't modified since the last time the .cfg file was saved!
 	struct stat st_ini, st_cfg;
+#ifdef __vita__
+	const char* cfg_filename = locate_file("ux0:data/prince/SDLPoP.cfg");
+	const char* ini_filename = locate_file("ux0:data/prince/SDLPoP.ini");
+#else
 	const char* cfg_filename = locate_file("SDLPoP.cfg");
 	const char* ini_filename = locate_file("SDLPoP.ini");
+#endif
 	if (stat( cfg_filename, &st_cfg ) == 0 && stat( ini_filename, &st_ini ) == 0) {
 		if (st_ini.st_mtime > st_cfg.st_mtime ) {
 			// SDLPoP.ini is newer than SDLPoP.cfg, so just go with the .ini configuration

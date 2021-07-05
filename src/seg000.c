@@ -22,6 +22,10 @@ The authors of this program may be contacted at https://forum.princed.org
 #include <setjmp.h>
 #include <math.h>
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 // data:461E
 dat_type * dathandle;
 
@@ -32,6 +36,10 @@ void fix_sound_priorities();
 
 // seg000:0000
 void far pop_main() {
+#ifdef NXLINK
+	socketInitializeDefault();
+	nxlinkStdio();
+#endif
 	if (check_param("--version") || check_param("-v")) {
 		printf ("SDLPoP v%s\n", SDLPOP_VERSION);
 		exit(0);
@@ -174,7 +182,9 @@ void __pascal far init_game_main() {
 	load_all_sounds();
 
 	hof_read();
+#if !defined(__SWITCH__) && !defined(__vita__)
 	show_splash(); // added
+#endif
 	start_game();
 }
 
@@ -354,7 +364,11 @@ int quick_process(process_func_type process_func) {
 	return ok;
 }
 
+#ifdef __vita__
+const char* quick_file = "ux0:data/prince/QUICKSAVE.SAV";
+#else
 const char* quick_file = "QUICKSAVE.SAV";
+#endif
 const char quick_version[] = "V1.16b4 ";
 char quick_control[] = "........";
 
